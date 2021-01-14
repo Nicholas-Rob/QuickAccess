@@ -1,12 +1,21 @@
 #include <iostream>
 #include <Windows.h>
 #include <tchar.h>
-
+#include <Psapi.h>
 #include <thread>
+
+
+/*
+struct win_data {
+    std::wstring name;
+    HWND handle;
+}; */
 
 
 void GetConsoleInput(HWND*, char*);
 void SampleCursor(HWND*, char*);
+
+//BOOL CALLBACK EnumWindowsCallback(HWND, LPARAM);
 
 
 int main()
@@ -33,21 +42,26 @@ int main()
 
 void GetConsoleInput(HWND* handle, char* running) {
 
+    /*
     std::string appNameStr;
 
     char appNameChar[128];
+    */
+
+    std::cout << "Press F4 to enable quick access to the window in focus.\n" << std::endl;
 
     while(*running == 1) {
 
-        std::cout << "\nEnter the name of the program that you want quick access to:" << std::endl;
-
         
+        
+
+        /*
         std::cin.getline(appNameChar, sizeof(appNameChar));
 
 
         appNameStr.assign(appNameChar, 128);
 
-
+        
         // Checks if user wants to quit.
         if (appNameStr.compare("quit") == 1) {
 
@@ -55,7 +69,7 @@ void GetConsoleInput(HWND* handle, char* running) {
             break;
         }
 
-
+        
         TCHAR* appName = new TCHAR[appNameStr.size() + 1];
         appName[appNameStr.size()] = 0;
 
@@ -63,10 +77,41 @@ void GetConsoleInput(HWND* handle, char* running) {
 
 
         *handle = FindWindow(NULL, appName);
+        */
 
-        if (*handle != NULL) {
-            std::cout << "Found " << appNameStr << std::endl;
+        /*
+        std::wstring appNameW = std::wstring(appNameStr.begin(), appNameStr.end());
+
+        win_data data = { appNameW, *handle };
+
+        EnumWindows(EnumWindowsCallback, (LPARAM)&data);
+        */
+
+        if (GetKeyState(VK_F4) < 0) {
+
+            
+
+            HWND newHandle = GetForegroundWindow();
+
+            if (newHandle != *handle) {
+
+                *handle = newHandle;
+
+                /*
+                WCHAR title[128];
+
+                GetWindowText(*handle, title, 128);
+
+                if (*handle != NULL) {
+                    std::wcout << "Found " << title << std::endl;
+                } */
+
+            }
+
         }
+
+        Sleep(100);
+        
     }
 
 }
@@ -107,6 +152,9 @@ void SampleCursor(HWND* handle, char* running) {
             SetForegroundWindow(*handle);
 
 
+            // Used to keep track of whether the window is maximized or not.
+            WINDOWPLACEMENT placement;
+            placement.length = sizeof(WINDOWPLACEMENT);
 
             RECT windowBounds;
 
@@ -115,14 +163,26 @@ void SampleCursor(HWND* handle, char* running) {
 
                 Sleep(100);
 
+                // Checks to see if window is maximized. 
+                // If so, break and then don't minimize window after the cursor leaves the bounds.
+                GetWindowPlacement(*handle, &placement);
+
+                if (placement.showCmd == SW_SHOWMAXIMIZED) {
+                    break;
+                }
+
+
                 GetWindowRect(*handle, &windowBounds);
                 GetCursorPos(&pos);
 
                 
-            } while ((pos.x >= windowBounds.left && pos.x <= windowBounds.right) && (pos.y >= windowBounds.top && pos.y <= windowBounds.bottom));
+            } while (((pos.x >= windowBounds.left && pos.x <= windowBounds.right) && 
+                      (pos.y >= windowBounds.top && pos.y <= windowBounds.bottom)) );
 
 
-            ShowWindow(*handle, SW_MINIMIZE);
+            if (placement.showCmd != SW_SHOWMAXIMIZED) {
+                ShowWindow(*handle, SW_MINIMIZE);
+            }
         }
 
 
@@ -132,3 +192,4 @@ void SampleCursor(HWND* handle, char* running) {
     }
 
 }
+
