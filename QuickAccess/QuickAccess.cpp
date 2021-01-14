@@ -106,7 +106,25 @@ void SampleCursor(HWND* handle, char* running) {
 
             SetForegroundWindow(*handle);
 
+
+
+            RECT windowBounds;
+
+            // This checks if the cursor is in the bounds of the window. If not, the window will minimize.
+            do {
+
+                Sleep(100);
+
+                GetWindowRect(*handle, &windowBounds);
+                GetCursorPos(&pos);
+
+                
+            } while ((pos.x >= windowBounds.left && pos.x <= windowBounds.right) && (pos.y >= windowBounds.top && pos.y <= windowBounds.bottom));
+
+
+            ShowWindow(*handle, SW_MINIMIZE);
         }
+
 
         // Delay between sampling cursor position.
         Sleep(100);
