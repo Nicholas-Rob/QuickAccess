@@ -5,8 +5,8 @@
 #include <thread>
 
 
-void GetConsoleInput(HWND*);
-void SampleCursor(HWND*);
+void GetConsoleInput(HWND*, char*);
+void SampleCursor(HWND*, char*);
 
 
 int main()
@@ -14,29 +14,34 @@ int main()
 
     HWND handle = NULL;
 
-    std::thread console_in (GetConsoleInput, &handle);
+    char* running = new char;
 
-    std::thread sample (SampleCursor, &handle);
+    *running = 1;
+
+    std::thread console_in (GetConsoleInput, &handle, running);
+
+    std::thread sample (SampleCursor, &handle, running);
     
 
     // If this is reached, user typed in "quit" to the console.
     console_in.join();
+    sample.join();
 
     return 0;
 }
 
 
-void GetConsoleInput(HWND* handle) {
+void GetConsoleInput(HWND* handle, char* running) {
 
     std::string appNameStr;
 
     char appNameChar[128];
 
-    while(1) {
+    while(*running == 1) {
 
         std::cout << "\nEnter the name of the program that you want quick access to:" << std::endl;
 
-        //std::cin >> appNameStr;
+        
         std::cin.getline(appNameChar, sizeof(appNameChar));
 
 
@@ -44,8 +49,11 @@ void GetConsoleInput(HWND* handle) {
 
 
         // Checks if user wants to quit.
-        if (appNameStr.compare("quit") == 0) break;
+        if (appNameStr.compare("quit") == 1) {
 
+            *running = 0;
+            break;
+        }
 
 
         TCHAR* appName = new TCHAR[appNameStr.size() + 1];
@@ -64,9 +72,14 @@ void GetConsoleInput(HWND* handle) {
 }
 
 
-void SampleCursor(HWND* handle) {
+void SampleCursor(HWND* handle, char* running) {
 
-    while (*handle == NULL) {
+
+    while (*handle == NULL && *running == 1) {
+
+        // Breaks out of while-loop if user decides to quit before selecting window.
+        
+
         // Blocks thread until a handle is found for a window.
         Sleep(1000);
     }
@@ -78,7 +91,7 @@ void SampleCursor(HWND* handle) {
 
     POINT pos;
 
-    while(1) {
+    while(*running == 1) {
 
         // Look for cursor position.
         GetCursorPos(&pos);
@@ -99,4 +112,5 @@ void SampleCursor(HWND* handle) {
         Sleep(100);
 
     }
+
 }
