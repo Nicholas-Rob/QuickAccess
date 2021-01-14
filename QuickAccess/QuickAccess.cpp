@@ -28,7 +28,6 @@ int main()
 
 void GetConsoleInput(HWND* handle) {
 
-
     std::string appNameStr;
 
     char appNameChar[128];
