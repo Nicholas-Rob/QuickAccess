@@ -5,17 +5,10 @@
 #include <thread>
 
 
-/*
-struct win_data {
-    std::wstring name;
-    HWND handle;
-}; */
-
 
 void GetConsoleInput(HWND*, char*);
 void SampleCursor(HWND*, char*);
 
-//BOOL CALLBACK EnumWindowsCallback(HWND, LPARAM);
 
 
 int main()
@@ -31,8 +24,7 @@ int main()
 
     std::thread sample (SampleCursor, &handle, running);
     
-
-    // If this is reached, user typed in "quit" to the console.
+    
     console_in.join();
     sample.join();
 
@@ -42,50 +34,13 @@ int main()
 
 void GetConsoleInput(HWND* handle, char* running) {
 
-    /*
-    std::string appNameStr;
 
-    char appNameChar[128];
-    */
 
     std::cout << "Press F4 to enable quick access to the window in focus.\n" << std::endl;
 
     while(*running == 1) {
 
-        
-        
-
-        /*
-        std::cin.getline(appNameChar, sizeof(appNameChar));
-
-
-        appNameStr.assign(appNameChar, 128);
-
-        
-        // Checks if user wants to quit.
-        if (appNameStr.compare("quit") == 1) {
-
-            *running = 0;
-            break;
-        }
-
-        
-        TCHAR* appName = new TCHAR[appNameStr.size() + 1];
-        appName[appNameStr.size()] = 0;
-
-        std::copy(appNameStr.begin(), appNameStr.end(), appName);
-
-
-        *handle = FindWindow(NULL, appName);
-        */
-
-        /*
-        std::wstring appNameW = std::wstring(appNameStr.begin(), appNameStr.end());
-
-        win_data data = { appNameW, *handle };
-
-        EnumWindows(EnumWindowsCallback, (LPARAM)&data);
-        */
+     
 
         if (GetKeyState(VK_F4) < 0) {
 
@@ -97,14 +52,6 @@ void GetConsoleInput(HWND* handle, char* running) {
 
                 *handle = newHandle;
 
-                /*
-                WCHAR title[128];
-
-                GetWindowText(*handle, title, 128);
-
-                if (*handle != NULL) {
-                    std::wcout << "Found " << title << std::endl;
-                } */
 
             }
 
